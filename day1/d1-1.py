@@ -11,6 +11,6 @@ for line in lines:
 		digs.append(n)
 	cal = int(f'{digs[0]}{digs[-1]}')
 	sum = sum + cal
-	print(f'{line} | {cal}')
+	print(f'{line[0:-1]} | {cal}')
 data.close()
 print(f'sum: {sum}')

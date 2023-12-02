@@ -1,4 +1,4 @@
-d = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 8}
+d = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9}
 sum = 0
 lines = open("d1data.txt").readlines()
 for line in lines:
@@ -19,5 +19,5 @@ for line in lines:
 				pass
 	num = digs[0] * 10 + digs[-1]
 	sum = sum + num
-	print(f'{line} | {num}')
+	print(f'{line[0:-1]} | {num}')
 print(f'sum: {sum}')

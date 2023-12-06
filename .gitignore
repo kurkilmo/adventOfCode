@@ -1,2 +1,7 @@
 **/*.txt
 template.py
+**/test.py
+**/.idea/**
+**/bin/**
+**/obj/**
+**/__pycache__/**

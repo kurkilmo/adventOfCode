@@ -1,6 +1,8 @@
 #
-#   Doesn't work yet
+#   Code should work but takes too long
 #
+import time
+
 lines = open("input.txt").readlines()
 for i in range(len(lines)):
     lines[i] = lines[i].strip()
@@ -38,19 +40,17 @@ def main():
         map_index += 1
     
     # Get seeds and run maps
+    t1 = time.time()
     min_location = None
     seed_ranges = lines[0].split(":")[1].split(" ")[1:]
     i = 0
     while (i < len(seed_ranges)):
-        seeds = []
-        seed_range = [int(seed_ranges[i]), int(seed_ranges[i+1])]
-        #seed_range.sort()
-        print(f'Startseed: {seed_range[0]}, Length: {seed_range[1]}')
-        for j in range(seed_range[1]):
-            seeds.append(seed_range[0] + j)
-        print("seeds calculated")
-    
-        for seed in seeds:
+        seedstart = int(seed_ranges[i])
+        seeds_length   = int(seed_ranges[i+1])
+        
+        seedtime = time.time()
+        
+        for seed in range(seedstart, seedstart + seeds_length + 1):
             for map in maps:
                 seed = whole_map(seed, map)
             if min_location == None:
@@ -58,9 +58,12 @@ def main():
             elif seed < min_location:
                 min_location = seed
         
+        print(f'Seeds {int(i/2+1)} calculated, time: {time.time() - seedtime}')
+        
         i += 2
     
-    print(f'min: {min_location}')
+    t2 = time.time()
+    print(f'min: {min_location}, time: {t2 - t1}')
 
 if __name__ == "__main__":
     main()

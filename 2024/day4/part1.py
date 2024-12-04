@@ -1,6 +1,4 @@
 lines = open("input.txt").readlines()
-prnt = print
-print = lambda s: None
 
 def transpose(lines:list):
     res = ['' for i in range(len(lines[0]))]
@@ -59,4 +57,4 @@ def diagonalize(lst: list):
 xmases += sum_xmas_simple(diagonalize(lines))
 xmases += sum_xmas_simple(diagonalize(mirror(lines)))
 
-prnt("Part 1:", xmases)
+print("Part 1:", xmases)

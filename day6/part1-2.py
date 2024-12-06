@@ -10,17 +10,15 @@ try:
     delay = float(sys.argv[1])
 except: pass
 
-obstacles = []
 guard = []
 guard_dir = 0
 
 for i in range(size):
     for j in range(size):
-        if lines[i][j] == '#':
-            obstacles.append([i,j])
-        elif lines[i][j] in "^>v<":
+        if lines[i][j] in "^>v<":
             guard = [i, j]
             guard_dir = "^>v<".index(lines[i][j])
+            break
 
 def next_square(dir, grd = None):
     if not grd: grd = guard
@@ -38,49 +36,52 @@ def update_visited(lst: list, grd, dir):
     i = grd[0]
     j = grd[1]
     if lst[i][j] == '.':
-        lst[i][j] = "↑→↓←"[dir] #  	← 	↑ 	→ 	↓
-    #elif lst[i][j] in "|-":
-    #    lst[i][j] = "+"
+        lst[i][j] = "↑→↓←"[dir]
+
+def is_obstacle(lst:list):
+    try:
+        return lines[lst[0]][lst[1]] == "#"
+    except:
+        return False
 
 def check_new_obstacle():
     dir = (guard_dir + 1) % 4
-    obstacles_check = obstacles.copy()
-    obstacles_check.append(next_square(guard_dir))
     new_guard = [guard[0], guard[1]]
     visited_check = [(['.'] * size) for _ in range(size)]
+    loop = False
     while True:
         i = new_guard[0]
         j = new_guard[1]
         if is_out_of_bounds(new_guard): break
-        if next_square(dir, new_guard) in obstacles_check:
+        if is_obstacle(next_square(dir, new_guard)) or next_square(dir, new_guard) == next_square(guard_dir):
             dir = (dir + 1) % 4
-        if visited_check[i][j] == "↑→↓←"[dir] or visited_check[i][j] == "+":
-            return True
+        if visited_check[i][j] == "↑→↓←"[dir]:
+            loop = True
+            break
         update_visited(visited_check, new_guard, dir)
 
-        while next_square(dir, new_guard) in obstacles_check:
+        while is_obstacle(next_square(dir, new_guard)) or next_square(dir, new_guard) == next_square(guard_dir):
             dir = (dir + 1) % 4
 
         new_guard = next_square(dir, new_guard)
-        #if visual: 
-        #    insert_string(visualize(size, obstacles_check, new_guard, dir, new_obstacles,visited_check))
-        #    time.sleep(delay)
-    return False
+    #if visual and loop: 
+    #    insert_string(visualize(lines, size, obstacles_check, new_guard, dir, new_obstacles,visited_check))
+    #    input()
+    #    time.sleep(delay)
+    return loop
 
-new_obstacle_count = 0
 new_obstacles = []
-if visual: print(visualize(size, obstacles, guard, guard_dir, new_obstacles,visited))
+if visual: print(visualize(lines, size, guard, guard_dir, new_obstacles,visited))
 while True:
     if check_new_obstacle():
-        new_obstacle_count += 1
         new_obstacles.append(next_square(guard_dir))
 
-    if visual: insert_string(visualize(size, obstacles, guard, guard_dir, new_obstacles,visited))
+    if visual: insert_string(visualize(lines, size, guard, guard_dir, new_obstacles,visited))
 
-    if next_square(guard_dir) in obstacles:
+    if is_obstacle(next_square(guard_dir)):
         guard_dir = (guard_dir + 1) % 4
     
-    while next_square(guard_dir) in obstacles:
+    while is_obstacle(next_square(guard_dir)):
         guard_dir = (guard_dir + 1) % 4
     guard = next_square(guard_dir)
 
@@ -90,9 +91,11 @@ while True:
     update_visited(visited, guard, guard_dir)
     if visual: time.sleep(delay)
 
-visited_count = 0
+print(visualize(lines, size, guard, guard_dir, new_obstacles,visited))
+
+visited_count = 1
 for a in visited:
     for b in a:
         visited_count += b != "."
 print("Part 1:", visited_count)
-print("Part 2:", new_obstacle_count)
+print("Part 2:", visualize(lines, size, guard, guard_dir, new_obstacles,visited).count("O"))

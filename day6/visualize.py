@@ -8,11 +8,11 @@ def insert_string(s: str):
         sys.stdout.write(line + '\n')
     sys.stdout.flush()
 
-def visualize(size, obstacles, guard, guard_dir, new, visited):
+def visualize(lines, size, guard, guard_dir, new, visited):
     res = ""
     for i in range(size):
         for j in range(size):
-            if [i,j] in obstacles:
+            if lines[i][j] == "#":
                 res += "#"
             elif [i,j] in new:
                 res += "O"

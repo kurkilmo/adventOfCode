@@ -39,7 +39,7 @@ def neighbors(point):
 
 window = Tk()
 window.attributes('-type', 'dialog')
-window_size = 1000
+window_size = 1500
 block_size = window_size / size
 
 
@@ -81,10 +81,16 @@ def color(i: int, target: int):
     bright = 0xff
     dark = 0x66
     res = dark + int((bright-dark) * (1 - (target-i) / target))
-    return f"#{hex(res)[2:]}0000"
+    return f"#{hex(res)[2:]}0090"
 
-def draw_path(position, current_route, prev_pos):
-    canvas.delete("stuff")
+def randcolor():
+    r = random.randint(50,255)
+    g = random.randint(50,255)
+    b = random.randint(50,255)
+    return f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}"
+
+def draw_path(position, current_route, delete_path=True):
+    if delete_path: canvas.delete("stuff")
     canvas.create_oval(
         position[1]*block_size + (block_size/4) ,
         position[0]*block_size + (block_size/4) ,
@@ -94,10 +100,12 @@ def draw_path(position, current_route, prev_pos):
         tags="stuff"
     )
     l = len(current_route)
+    if not delete_path: c = randcolor()
     for i in range(1, l):
         p1 = current_route[i-1]
         p2 = current_route[i]
-        c = color(i, l)
+        if delete_path:
+            c = color(i, l)
         canvas.create_line(
             p1[1]*block_size + (block_size / 2),
             p1[0]*block_size + (block_size / 2),
@@ -135,10 +143,11 @@ end_scores = []
 total_delay = 0
 delay = 30
 
-def traverse(score, pos, direction, current_route, prev_pos):
+def traverse(score, pos, direction, current_route, visual=False):
     global total_delay, delay
     total_delay += delay
-    canvas.after(total_delay, lambda: draw_path(pos, current_route, prev_pos))
+    if visual: 
+        canvas.after(total_delay, lambda: draw_path(pos, current_route))
 
     if pos in route.keys():
         if route[pos][1] < (score): return
@@ -154,15 +163,15 @@ def traverse(score, pos, direction, current_route, prev_pos):
     nxt = next_square(direction, pos)
     def go_straight():
         if data[nxt[0]][nxt[1]] != '#':
-            traverse(score+1, nxt, direction, current_route + [pos], pos)
+            traverse(score+1, nxt, direction, current_route + [pos], visual)
             route[pos] = (direction, score+1)
     def go_left():
         if data[left[0]][left[1]] != '#':
-            traverse(score+1001, left, dir_left(direction), current_route + [pos], pos)
+            traverse(score+1001, left, dir_left(direction), current_route + [pos], visual)
             route[pos] = (direction, score+1001)
     def go_right():
         if data[right[0]][right[1]] != '#':
-            traverse(score+1001, right, dir_right(direction), current_route + [pos], pos)
+            traverse(score+1001, right, dir_right(direction), current_route + [pos], visual)
             route[pos] = (direction, score+1001)
     dirs = [go_straight, go_left, go_right]
     random.shuffle(dirs)
@@ -170,12 +179,29 @@ def traverse(score, pos, direction, current_route, prev_pos):
 
 def begin():
     try:
-        traverse(0, start, 1, [start], start)
+        traverse(0, start, 1, [start], True)
     except KeyboardInterrupt:
         print("int")
         pass
 
-canvas.after(1, begin)
+if len(sys.argv) >= 3:
+    only_solve = True
+else: only_solve = False
+
+if only_solve:
+    traverse(0, start, 1, [start], False)
+    min_score = min(map(lambda a: a[0], end_scores))
+    print("Minimum score:", min_score)
+    min_paths = set()
+    for score in filter(lambda a: a[0] == min_score, end_scores):
+        score_route = score[1]
+        draw_path(end, score_route, False)
+        for spot in score_route:
+            min_paths.add(spot)
+    print(f"Spots along best paths: {len(min_paths)}")
+else:
+    canvas.after(1, begin)
+
 #canvas.after(1, lambda: draw_path(start, []))
 canvas.pack()
 

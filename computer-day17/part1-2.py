@@ -66,9 +66,9 @@ def execute():
 
 
 # Part 1
-#out = execute()
-#print("\nPart 1 output:")
-#print(','.join(list(map(str,out))))
+out = execute()
+print("\nPart 1 output:")
+print(','.join(list(map(str,out))))
 
 # Part 2
 out = []

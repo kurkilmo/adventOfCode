@@ -1,5 +1,4 @@
 import sys
-from functools import lru_cache
 
 if len(sys.argv) >= 2:
     filename = sys.argv[1]
@@ -11,7 +10,6 @@ sys.setrecursionlimit(10000)
 data = open(filename).readlines()
 size = len(data)
 
-walls = []
 start = ()
 end = ()
 
@@ -19,26 +17,11 @@ for i in range(size):
     for j in range(size):
         coord = (i, j)
         match data[i][j]:
-            case '#':
-                walls.append(coord)
             case 'S':
                 start = coord
             case 'E':
                 end = coord
 
-def next_square(direction, square):
-    return (
-        square[0] + (-1*abs(direction-2)+1),
-        square[1] + (-1*abs(direction-1)+1)
-    )
-
-def dir_left(direction):
-    return (direction - 1) % 4
-
-def dir_right(direction):
-    return (direction + 1) % 4
-
-@lru_cache
 def neighbors(pos):
     (i,j) = pos
     res =  [
@@ -71,7 +54,6 @@ def traverse(distance, pos):
 
 end_distance = traverse(0,start)
 
-@lru_cache
 def double_neighbors(i, j):
     res =  [
         [(i-1, j) , (i-2, j)],
@@ -84,6 +66,7 @@ def double_neighbors(i, j):
         res
     ))
 
+# Part 1
 cheats = []
 cheat_locs = []
 for spot in route.keys():
@@ -115,11 +98,39 @@ if filename != "input.txt":
 cheat_threshold = 100
 fast_cheats = len(list(filter(lambda c: c >= cheat_threshold, cheats)))
 
-print(f"Distance w/o cheats: {end_distance}")
+print(f"Part 1:\nDistance w/o cheats: {end_distance}")
 print(f"\nTotal cheats: {len(cheats)}\n")
 
-for cheat in set(cheats):
-    print(f"{cheats.count(cheat)} cheats saving {cheat} ps")
+if filename != "input.txt":
+    for cheat in set(cheats):
+        print(f"{cheats.count(cheat)} cheats saving {cheat} ps")
+
+print(f"\nCheats saving {cheat_threshold}ps or more:")
+print(fast_cheats)
+
+# Part 2
+print("-----------\nPart 2:")
+def distance(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+cheat_dist = 20
+cheats = []
+for spot in route.keys():
+    for cheat_spot in list(filter(
+        lambda s: distance(spot, s) <= cheat_dist,
+        route.keys()
+    )):
+        if route[cheat_spot] > route[spot]:
+            cheats.append((route[cheat_spot] - route[spot]) - distance(cheat_spot, spot))
+
+
+cheat_threshold = 100
+fast_cheats = len(list(filter(lambda c: c >= cheat_threshold, cheats)))
+
+if filename != "input.txt":
+    for cheat in set(cheats):
+        if cheat >= cheat_threshold:
+            print(f"{cheats.count(cheat)} cheats saving {cheat} ps")
 
 print(f"\nCheats saving {cheat_threshold}ps or more:")
 print(fast_cheats)

@@ -32,8 +32,8 @@ for num in initial_nums:
     ch = num
     for i in range(rounds):
         ch = next_secret(ch)
-    #print(f"{num}: {ch}")
     secrets_sum += ch
+
 print(f"Part 1: sum: {secrets_sum}")
 
 # Part 2
@@ -49,30 +49,36 @@ def price(secret:int):
     return int(str(secret)[-1])
 
 for num in initial_nums:
+    done_sequences = set()
     sequence = []
     
     prev = num
-    for i in range(1,5):
+    i = 0
+    while i < 4:
         secret = next_secret(prev)
         diff = price(secret) - price(prev)
         sequence.append(diff)
         prev = secret
+        i += 1
 
     add(tuple(sequence), price(secret))
 
-    for i in range(1, rounds):
+    while i < 2000:
         secret = next_secret(prev)
-        diff = price(secret) - price(prev)
+        curr_price = price(secret)
+        diff = curr_price - price(prev)
+
         sequence.pop(0)
         sequence.append(diff)
+
         prev = secret
 
-        add(tuple(sequence), price(secret))
+        tpl = tuple(sequence)
 
-max_price = max(list(map(sum, sequences.values())))
-print(sequences[(-2,1,-1,3)])
-for seq in sequences.keys():
-    s = sum(sequences[seq])
-    if s >= 23:
-        print(f"{seq}:{s}")
-print(f"Part 2: max bananas: {max_price}")
+        if tpl not in done_sequences:
+            add(tpl, curr_price)
+            done_sequences.add(tpl)
+        i += 1
+
+max_bananas = max(map(sum, sequences.values()))
+print(f"Part 2: max bananas: {max_bananas}")
